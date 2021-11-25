@@ -44,36 +44,35 @@ a_pvalue<-sprintf("%.2e", pchisq(a$chisq, length(a$n)-1, lower.tail = FALSE))
 Surv_fit<-survfit(Surv_data~phe_final_HIF1a$hif1a_es)
 fit<-survfit(Surv(day,event) ~ hif1a_es, data=phe_final_HIF1a)
 
-KMsurvival_plot<-ggsurvplot(fit,data=phe_final_HIF1a,pval = TRUE, #show p-value of log-rank test，显示log-rank分析得到的P值
-                            #conf.int = TRUE, #添加置信区
+KMsurvival_plot<-ggsurvplot(fit,data=phe_final_HIF1a,pval = TRUE, #show p-value of log-rank test，
+                            #conf.int = TRUE, #
                             pval.size=10,
                             legend.labs =  c( "HIF score Low",'HIF score High'),
                             main = 'BAL all cohorts',
                             legend.title='', 
                             xlab = "Time to death (days)",   ###  customize X axis label.自定义x的time in years
                             #xlim=c(0,50),
-                            break.x.by=500, ###改变坐标轴间距
+                            break.x.by=500, ###
                             ylab=paste0('Overall survival'),
                             #ylab=paste0('Overall peak day'),
                             #ylab=paste0('SRAS−CoV−2 RNA +'),
-                            #surv.median.line = "hv", #添加中位生存时间的线
-                            palette = c( "turquoise","indianred1"), ###  自定义颜色
+                            #surv.median.line = "hv", #
+                            palette = c( "turquoise","indianred1"), ###  
                             #font.main = c(16, "bold", "darkblue"),
                             font.main = c(40, "bold"),
-                            font.x = c(40,'black'), # X 轴
-                            font.y = c(35,'black'), # c(14, "bold.italic", "darkred"), y 轴特
-                            font.tickslab = 30,# c(12, "plain", "darkgreen"), 坐标轴大小
-                            #conf.int.style = "step",  ###  customize style of confidence intervals,改变置信区间的样子
-                            risk.table = "abs_pct",  ###  absolute number and percentage at risk，这里以n(%)的形式展示risk table
+                            font.x = c(40,'black'), # 
+                            font.y = c(35,'black'), # c(14, "bold.italic", "darkred"), y 
+                            font.tickslab = 30,# c(12, "plain", "darkgreen"), 
+                            #conf.int.style = "step",  ###  customize style of confidence intervals,
+                            risk.table = "abs_pct",  ###  absolute number and percentage at risk，
                             risk.table.y.text.col = T,###  colour risk table text annotations.
-                            risk.table.y.text = F,###  show bars instead of names in text annotations in legend of risk table.不显示legend名字
-                            tables.y.text=F,
+                            risk.table.y.text = F,###  show bars instead of names in text annotations in legend of risk table.
                             tables.x.text =F,
-                            #risk.table.title="My title", ## 改变 title
-                            fontsize=7, ## 表格中数据大小
-                            ncensor.plot = F, #我这里不显示删失的TRUE就显示
-                            #tables.theme=theme_cleantable(), # 取消table边框
-                            ggtheme = theme_classic()#绘图主题
+                            #risk.table.title="My title", ## 
+                            fontsize=7, ## 
+                            ncensor.plot = F, #
+                            #tables.theme=theme_cleantable(), # 
+                            ggtheme = theme_classic()#
 )
 KMsurvival_plot$plot<-KMsurvival_plot$plot+
   theme(legend.text = element_text(size = 35),plot.margin = unit(c(2,2,0,2), "cm"))
@@ -83,7 +82,7 @@ KMsurvival_plot$table<-KMsurvival_plot$table+labs(x = NULL, y = NULL)+theme(axis
                                                                             
                                                                             legend.text = element_text(size = 35),
                                                                             plot.title = element_text(size=35),
-                                                                            plot.margin = unit(c(0,2,2,2), "cm")) # 改变numer at risk 大小)
+                                                                            plot.margin = unit(c(0,2,2,2), "cm")) # 
 KMsurvival_plot
 # Freiburg/Siena/Leuven
 ggsave(file=paste0('Freiburg','_HIF_ggsurvplot.pdf'),width = 15,height = 12,print(KMsurvival_plot),
