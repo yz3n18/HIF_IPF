@@ -10,7 +10,7 @@ str(gse70867)
 #### chose the data we need ####
 b =gse70867[[2]]
 boxplot(b)
-### get clinical information
+### get clinical information   
 phe=pData(b)
 rownames(phe)
 rownames(phe)
