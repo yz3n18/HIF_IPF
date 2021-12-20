@@ -2,7 +2,7 @@ Hypxoia_score<-HIF1A
 HIF_score<-HIF1A
 GAL_score<-HIF1A
 
-## heatmap 
+## heatmap   
 
 HIF_signature<-raw_exprSet_final_batch[Hypoxia_list,]
 rownames(gsva_Hypoxia)<-'GSVA_score'
