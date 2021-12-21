@@ -171,12 +171,9 @@ Hypoxia_list<-list(c('NDRG1','ENO1','VEGFA','MRPS17','TPI1','CDKN3',
 gsva_Hypoxia <- gsva(raw_exprSet_final_batch,Hypoxia_list , mx.diff=1)
 gsva_Hypoxia <- gsva(Freiburg,Hypoxia_list , mx.diff=1)
 
-
 Oxidative_list<-list(c('ABCC1', 'CDKN2D', 'FES', 'GCLC', 'GCLM', 'GLRX2', 'HHEX', 'IPCEF1', 
                        'JUNB', 'LAMTOR5', 'LSP1', 'MBP', 'MGST1', 'MPO', 'NDUFA6', 'PFKP', 'PRDX1', 'PRDX2','PRDX4', 
                        'PRNP', 'SBNO2','SCAF4', 'SOD1', 'SOD2', 'RXN1', 'TXN', 'TXNRD1'))
-BAL_list<-list(c("BMP6", "IBSP", 'S100A14', 'STAB1', 'LOC284751', 'ANKRD22'))
-gsva_BAL<-gsva(raw_exprSet_final_batch,BAL_list , mx.diff=1)
 gsva_Hypoxia <- gsva(raw_exprSet_final_batch,Hypoxia_list , mx.diff=1)
 gsva_Oxidative <- gsva(raw_exprSet_final_batch,Oxidative_list , mx.diff=1)
 
