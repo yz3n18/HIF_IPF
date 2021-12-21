@@ -32,13 +32,6 @@ dev.off()}#### HIF-siganture heatmap####
 ## Figure 2B
 if(T){
   GSVA_survival<-function(gene_list,location,Kmean){
-    gene_list<-Hypoxia_list
-    #gene_list<-HIF_list
-    #location<-'Three'
-    location<-'Frei'
-    #location<-'SIENA'
-    #location<-'LEUVEN'
-    Kmean<-2
     if  (grepl(toupper(location),'THREEREGIONS')){
       gsva_Hypoxia <- gsva(raw_exprSet_final_batch,gene_list , mx.diff=1)
       location<-'Freiburg+Siena+Leuven'
