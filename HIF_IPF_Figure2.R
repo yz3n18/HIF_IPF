@@ -2,7 +2,7 @@ Hypxoia_score<-HIF1A
 HIF_score<-HIF1A
 GAL_score<-HIF1A
 
-## heatmap   
+## Figure 2A   
 
 HIF_signature<-raw_exprSet_final_batch[Hypoxia_list,]
 rownames(gsva_Hypoxia)<-'GSVA_score'
@@ -29,6 +29,7 @@ heatmap.2(a3, trace="none", density='none',scale="row", margins = c(10,12),cexRo
           ColSideColors  = col_labels) 
 dev.off()}#### HIF-siganture heatmap####
 
+## Figure 2B
 if(T){
   GSVA_survival<-function(gene_list,location,Kmean){
     gene_list<-Hypoxia_list
@@ -87,22 +88,13 @@ if(T){
                             paste("High ", "(n=", table(phe_final_HIF1a$hif1a_es)[2], ")", sep="")),
              col = c('blue','red'),lwd = 3,bty='n',cex=1)
     }
-    ##### here should be changed !!!
-    ##### here should be changed !!!
-    ##### here should be changed !!!
-    a_pvalue
     title(ylab="Survival", line=3,cex.lab=3,cex.axis=2.5)
     title(xlab="Time to death (days)", line=3.5,cex.lab=3,cex.axis=2.5)
-    text(as.integer(max(phe_final_HIF1a$day)/1.3),0.9,expression(paste("Secreted Score")),cex = 2.5)
-    #text(as.integer(max(phe_final_HIF1a$day)/1.3),0.9,expression(paste("TGF-",beta, " Score")),cex = 2.5)
-    text(as.integer(max(phe_final_HIF1a$day)/1.3),0.8,substitute(paste(italic("P"), " = 1.21x ",10^-7)),cex = 2.5)
-    #text(as.integer(max(phe_final_HIF1a$day)/1.3),0.8,substitute(paste(italic("P"), " = 0.14 ")),cex = 2.5)
-    #text(as.integer(max(phe_final_HIF1a$day)/1.3),0.8,as.character(a_pvalue),cex = 1.5)
     dev.off()  
   }
 }
-
-# Cox ###
+GSVA_survival(HIF_list,'THREEREGIONS',2)
+# Figure 2C
 library(survminer)
 
 phe_final_HIF1a<-read.csv('phe_final.csv',sep= ',',header = T)
@@ -114,7 +106,7 @@ Gcox<-coxph(single_line~Gap_Stage+HIFScore,
 ggforest(Gcox,data = phe_final_HIF1a,cpositions = c(0.02,0.22,0.4),main = 'Hazard ratio',
          fontsize =1.8,refLabel = 'reference',noDigits = 2)
 
-#### Prediction error ####
+# Figure 2D
 if(T){
   phe_function<-function(gene_list,Kmean){
     gsva_Hypoxia <- gsva(raw_exprSet_final_batch,gene_list,mx.diff=1)
@@ -131,3 +123,4 @@ if(T){
     return( phe_final_HIF1a)
   }
 }
+phe_function(HIF_list,2)
