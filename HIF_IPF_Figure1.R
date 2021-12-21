@@ -2,6 +2,17 @@ library(GEOquery)
 library(survival)
 library(GSVA)
 setwd('/Users/lefan/Rcode/IPF-singlecell/GSE70866_RAW_BAL/')
+
+# Figure 1A
+GSE92592<-read.table('GSE92592_gene.counts.txt',header = T,sep = '\t')
+GSE92592<-aggregate(x=GSE92592[,-1],by=list(GSE92592$gene),FUN=median)
+
+rownames(GSE92592)<-GSE92592$Group.1
+GSE92592<-GSE92592[,-1]
+GSE92592<-as.matrix(GSE92592)
+gsva_Hypoxia<-gsva(GSE92592,Hypoxia_list, mx.diff=1,kcdf= "Poisson")
+
+# Figure 1B/C/D
 #### download data ####
 gse70867<-getGEO('GSE70867',destdir = '.')
 rm(gse70867)
@@ -169,24 +180,21 @@ gsva_BAL<-gsva(raw_exprSet_final_batch,BAL_list , mx.diff=1)
 gsva_Hypoxia <- gsva(raw_exprSet_final_batch,Hypoxia_list , mx.diff=1)
 gsva_Oxidative <- gsva(raw_exprSet_final_batch,Oxidative_list , mx.diff=1)
 
-cor.test(as.numeric(gsva_Oxidative),as.numeric(gsva_Hypoxia)) # p= 1.341e-11,R=0.4814433 BAL | p-value = 3.532e-08,R=0.477372 PBMC
-# p= 7.864e-15, R=0.898941, GSE92592
-cor.test(as.numeric(gsva_BAL),as.numeric(gsva_Hypoxia))
-### merge list score and LOXL2_PLOD2 score
+
+cor.test(as.numeric(gsva_Oxidative),as.numeric(gsva_Hypoxia)) 
+### merge list HIF score and Oxidative score
 df<-rbind(gsva_Oxidative,gsva_Hypoxia)
 df<-t(df)
 df<-as.data.frame(df)
 colnames(df)<-c('Oxidative_Stree_Score','HIF_Score')
 
 ## plot
-pdf('Oxidative_Stree_HIF_GSE92592.pdf',width = 10,height = 10)
+pdf('Oxidative_Stree_HIF.pdf',width = 10,height = 10)
 par(mar=c(5,8,100,5))
-ggscatter(df, x = "Oxidative_Stree_Score", y = "HIF_Score", # p= 1.341e-11,R=0.4814433 |p-value = 3.532e-08,R=0.477372 PBMC
+ggscatter(df, x = "Oxidative_Stree_Score", y = "HIF_Score", 
           size = 5,
           xlab = expression(paste('HIF',' Score')),
-          #xlab = expression(paste('TGF-',beta,' Score')),
           ylab = expression(paste('Oxidative Stress',' Score')),
-          #ylab = expression(italic(LOXL2)~+~italic(PLOD2)~  Score),
           add = "reg.line",  # Add regressin line
           #cor.coef = TRUE,
           add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
@@ -196,7 +204,6 @@ ggscatter(df, x = "Oxidative_Stree_Score", y = "HIF_Score", # p= 1.341e-11,R=0.4
                                 label.y = 1.1),cor.coef.size = 10)+
   annotate("text", x =-0.025, y=1.0, label = substitute(paste(italic("R"), " = 0.89")),size=10)+
   annotate("text", x = -0.025, y=0.9, label = substitute(paste(italic("P"), " = 7.9 x ",10^-15)),size=10)+
-  #annotate("text", x = 0.407, y=-0.75, label = substitute(paste(italic("P"), " = 0.03 ")),size=15)+
   theme(axis.title=element_text(size=40,face="bold"),axis.text=element_text(size=35,face="bold"),axis.title.x=element_text(face = 'bold'),
         axis.title.y=element_text(face = 'bold'))
 dev.off()
