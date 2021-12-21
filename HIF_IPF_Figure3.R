@@ -28,6 +28,12 @@ pfinfo_bb<-pfinfo_bb[,1:2]
 GSE38958_data<-as.data.frame(GSE38958_data)
 GSE38958_data$ID<-rownames(GSE38958_data)
 GSE38958_data<-merge(GSE38958_data,pfinfo_bb,by='ID')
+GSE38958_CHICAGO<-GSE38958[,c(1:76)]
+GSE38958_CHICAGO<-as.matrix(GSE38958_CHICAGO[,-1])
+
+GSE38958_PITTSBURGH<-GSE38958[,c(1,77:121)]
+GSE38958_PITTSBURGH<-as.matrix(GSE38958_PITTSBURGH[,-1])
+
 
 gsva_Hypoxia <- gsva(as.matrix(GSE38958),Hypoxia_list , mx.diff=1)
 HIF1A<-as.data.frame((gsva_Hypoxia))
