@@ -2,150 +2,91 @@ BiocManager::install('GSVA')
 library(GSVA)
 library(survival)
 library(survminer)
-raw_exprSet_final_batch<-readRDS('/Users/yihuawang//Rcode/UFPM/raw_exprSet_final_batch.rds')
-load('/Users/yihuawang/IPF-singlecell/GSE70866_RAW_BAL/raw_exprSet_final_numeric.Rdata')
 
-Freiburg<-raw_exprSet_final_batch[,1:62]
-Siena<-raw_exprSet_final_batch[,63:112]
-Siena<-raw_exprSet_final_numeric[,63:112]
-Leuven<-raw_exprSet_final_batch[,113:176]
-#Leuven<-raw_exprSet_final_numeric[,113:176]
+####GSE40839 ####
 
-phe_final1<-read.csv('phe_final_IPF.csv')
-phe_final<-read.csv('/Users/yihuawang/Rcode/IPF-singlecell/GSE108975_macrophages/phe_final.csv')
-Hypoxia_list<-list(c('NDRG1','ENO1','VEGFA','MRPS17','TPI1','CDKN3',
-                     'MIF','LDHA','ALDOA','TUBB6','PGAM1','SLC2A1','P4HA1','ACOT7','ADM'))
+GSE38958<-getGEO('GSE38958',destdir = '.')
+GSE38958<-GSE38958[[1]]
+GSE38958<-ReadAffy()
 
-gsva_Hypoxia <- gsva(raw_exprSet_final_batch,Hypoxia_list , mx.diff=1)
-gsva_Hypoxia <- gsva(Freiburg,Hypoxia_list , mx.diff=1)
-gsva_Hypoxia <- gsva(Siena,Hypoxia_list , mx.diff=1)
-gsva_Hypoxia <- gsva(Leuven,Hypoxia_list , mx.diff=1)
+GSE38958_data<-exprs(GSE38958)
+boxplot(GSE38958_data)
+boxplot(GSE38958_data,outline=FALSE)
+GSE38958_data<-affy::rma(GSE38958)
+GSE38958_data<-exprs(GSE38958_data)
+
+
+bb<-"./GPL5175.soft"
+bb_nn <- grep("^[^#!^]", readLines(bb))[1] - 1
+pfinfo_bb <- read.table(bb, sep = "\t", quote = "", header = TRUE, skip = bb_nn, fill = TRUE)
+colnames(pfinfo_bb)
+pfinfo_bb <- pfinfo_bb[, c(1,11)]
+write.csv(pfinfo_bb,'pfinfo_bb.csv')
+pfinfo_bb<-read.csv('pfinfo_bb.csv')
+pfinfo_bb<-pfinfo_bb[,1:2]
+
+GSE38958_data<-as.data.frame(GSE38958_data)
+GSE38958_data$ID<-rownames(GSE38958_data)
+GSE38958_data<-merge(GSE38958_data,pfinfo_bb,by='ID')
+
+gsva_Hypoxia <- gsva(as.matrix(GSE38958),Hypoxia_list , mx.diff=1)
 HIF1A<-as.data.frame((gsva_Hypoxia))
 hclust_completem <- hclust(dist(as.data.frame(t(HIF1A))), method = "ward.D")
 
-
-
-hif1a_es <- cutree(hclust_completem,k=2)
-hif1a_es<-as.data.frame(hif1a_es)
-hif1a_es$X<-rownames(hif1a_es)
-#phe_final_HIF1a<-merge(HIF1A,GSE27957_phe,by='X')
-phe_final_HIF1a<-merge(hif1a_es,phe_final,by='X')# BAL
-
-phe_final_HIF1a<-phe_final_HIF1a[grepl( 'Leuven', phe_final_HIF1a$title, fixed = TRUE),] # Freiburg/Siena/Leuven
-
-#write.csv(phe_final_HIF1a,paste0('GSVA_final_1506','_',Kmean,'.csv'))
-Surv_data<-Surv(time = phe_final_HIF1a$day,event =phe_final_HIF1a$event ) # BAL
-a<-survdiff(Surv_data~phe_final_HIF1a$hif1a_es)
-
-
-a_pvalue<-sprintf("%.2e", pchisq(a$chisq, length(a$n)-1, lower.tail = FALSE))
-
-
-Surv_fit<-survfit(Surv_data~phe_final_HIF1a$hif1a_es)
-fit<-survfit(Surv(day,event) ~ hif1a_es, data=phe_final_HIF1a)
-
-KMsurvival_plot<-ggsurvplot(fit,data=phe_final_HIF1a,pval = TRUE, #show p-value of log-rank test，
-                            #conf.int = TRUE, #
-                            pval.size=10,
-                            legend.labs =  c( "HIF score Low",'HIF score High'),
-                            main = 'BAL all cohorts',
-                            legend.title='', 
-                            xlab = "Time to death (days)",   ###  customize X axis label.自定义x的time in years
-                            #xlim=c(0,50),
-                            break.x.by=500, ###
-                            ylab=paste0('Overall survival'),
-                            #ylab=paste0('Overall peak day'),
-                            #ylab=paste0('SRAS−CoV−2 RNA +'),
-                            #surv.median.line = "hv", #
-                            palette = c( "turquoise","indianred1"), ###  
-                            #font.main = c(16, "bold", "darkblue"),
-                            font.main = c(40, "bold"),
-                            font.x = c(40,'black'), # 
-                            font.y = c(35,'black'), # c(14, "bold.italic", "darkred"), y 
-                            font.tickslab = 30,# c(12, "plain", "darkgreen"), 
-                            #conf.int.style = "step",  ###  customize style of confidence intervals,
-                            risk.table = "abs_pct",  ###  absolute number and percentage at risk，
-                            risk.table.y.text.col = T,###  colour risk table text annotations.
-                            risk.table.y.text = F,###  show bars instead of names in text annotations in legend of risk table.
-                            tables.x.text =F,
-                            #risk.table.title="My title", ## 
-                            fontsize=7, ## 
-                            ncensor.plot = F, #
-                            #tables.theme=theme_cleantable(), # 
-                            ggtheme = theme_classic()#
-)
-KMsurvival_plot$plot<-KMsurvival_plot$plot+
-  theme(legend.text = element_text(size = 35),plot.margin = unit(c(2,2,0,2), "cm"))
-
-KMsurvival_plot$table<-KMsurvival_plot$table+labs(x = NULL, y = NULL)+theme(axis.text=element_text(size=35),
-                                                                            axis.title=element_text(size=35),
-                                                                            
-                                                                            legend.text = element_text(size = 35),
-                                                                            plot.title = element_text(size=35),
-                                                                            plot.margin = unit(c(0,2,2,2), "cm")) # 
-KMsurvival_plot
-# Freiburg/Siena/Leuven
-ggsave(file=paste0('Freiburg','_HIF_ggsurvplot.pdf'),width = 15,height = 12,print(KMsurvival_plot),
-       onefile=FALSE)
-
-HIF1A<-as.data.frame(t(HIF1A))
-HIF1A$X<-rownames(HIF1A)
-phe_final_HIF1a<-merge(HIF1A,phe_final_HIF1a,by='X')
-colnames(phe_final_HIF1a)[2]<-'HIF_Score'
-
-single_line<-Surv(time = phe_final_HIF1a$day,event = phe_final_HIF1a$event) # BAL
-Gcox<-coxph(single_line~ HIF_Score,data = phe_final_HIF1a)# uni
-Gcox
-summary(Gcox)  #output provides HR CIs
-
-
-#### IPA ####
-table(phe_final_HIF1a$hif1a_es)
-raw_exprSet_final_batch_high<-raw_exprSet_final_batch[,phe_final_HIF1a[phe_final_HIF1a$hif1a_es==2,1]]
-raw_exprSet_final_batch_low<-raw_exprSet_final_batch[,phe_final_HIF1a[phe_final_HIF1a$hif1a_es==1,1]]
-BAL_batchmatrix_limma<-cbind(raw_exprSet_final_batch_low,raw_exprSet_final_batch_high)
-mean(raw_exprSet_final_batch_high['ADM',])
-mean(raw_exprSet_final_batch_low['ADM',])
-mean(gsva_Hypoxia[,phe_final_HIF1a[phe_final_HIF1a$hif1a_es==1,1]])
-mean(gsva_Hypoxia[,phe_final_HIF1a[phe_final_HIF1a$hif1a_es==2,1]])
-
-library(limma)
-design <- model.matrix(~-1+factor(c(rep(1,100),rep(2,76))))
-
-colnames(design) <- c("Low","High") # ??????design????????????rename the colnames of design
-
-#output the design matrix
-
-contrastmatrix <- makeContrasts(High-Low,levels=design)##and make the contrasts
-contrastmatrix # check contrastmatrix
-
-
-fit <- lmFit(BAL_batchmatrix_limma, design) # Run limma to get Differentially expressed genes
-fit2 <- contrasts.fit(fit, contrastmatrix)  # Run limma to get Differentially expressed genes
-?lmFit
-#the borrowed variance approach described in class
-fit2 <- eBayes(fit2) # ??????????????????FDR????????????
-myresults_new <-topTable(fit2,coef=1, # 1 for FIH, 2 for VHL, 3 for VHL_FIH
-                         adjust="fdr",
-                         number=nrow(BAL_batchmatrix_limma))  # ??????????????????FDR????????????, extract final result after FDR adjustment
-myresults_new$Symbol<-row.names(myresults_new) # ???????????????Symbol????????????create a new col 'Symbol' by the rowname of this data frame
-for (i in 1:20189){
-  myresults_new$Low_mean[i]<-mean(raw_exprSet_final_batch_low[rownames(myresults_new)[i],])
-  myresults_new$High_mean[i]<-mean(raw_exprSet_final_batch_high[rownames(myresults_new)[i],])
+## Figure 3B  
+HIF_signature<-GSE38958_data[Hypoxia_list,]
+rownames(gsva_Hypoxia)<-'GSVA_score'
+HIF_signature<-HIF_signature[,hclust_completem$order]
+colnames(HIF_signature)<-HIF_signature[8,]
+HIF_signature<-HIF_signature[-8,]
+a3<-as.matrix(HIF_signature)
+f1<-function(x){
+  x<-as.numeric(x)
 }
+a3<-apply(a3, 2, f1)
+rownames(a3)<-rownames(HIF_signature)
+a3 <- a3[,order(a3[1,])]
+class(a3[3,1])
+colorbar<-colorRampPalette(c('darkblue','grey','red'))(n=1000)
+distCor <- function(a3) as.dist(1-cor(t(a3)))
+hclustAvg <- function(a3) hclust(a3, method="average") #hclustfun=hclustAvg???distfun=distCor
+hc<-hclust(as.dist(1-cor(values, method="pearson")), method="average")
+png('heatmap_HIF.png',width = 20000,height = 10000,res = 1200)
+heatmap.2(a3, trace="none", density='none',scale="row", margins = c(10,12),cexRow = 2,
+          cexCol = 0.6, zlim=c(-10,10),srtCol=45,adjCol=c(1,0),Colv = F,Rowv = F,
+          distfun=distCor, col=colorbar, symbreak=FALSE,key = T,keysize = 0.8,
+          ColSideColors  = col_labels) 
+dev.off()}#### HIF-siganture heatmap####
 
-myresults_new_up<-subset(myresults_new,adj.P.Val< 0.05)
+## Figure 3D
+Oxidative_list<-list(c('ABCC1', 'CDKN2D', 'FES', 'GCLC', 'GCLM', 'GLRX2', 'HHEX', 'IPCEF1', 
+                       'JUNB', 'LAMTOR5', 'LSP1', 'MBP', 'MGST1', 'MPO', 'NDUFA6', 'PFKP', 'PRDX1', 'PRDX2','PRDX4', 
+                       'PRNP', 'SBNO2','SCAF4', 'SOD1', 'SOD2', 'RXN1', 'TXN', 'TXNRD1'))
+gsva_Oxidative <- gsva(raw_exprSet_final_batch,Oxidative_list , mx.diff=1)
 
-myresults_new_down<-subset(myresults_new_up,myresults_new_up$logFC < 0)
-myresults_new_up<-subset(myresults_new_up,myresults_new_up$logFC > 0)
+cor.test(as.numeric(gsva_Oxidative),as.numeric(gsva_Hypoxia))
 
-save(myresults_new,myresults_new_up,myresults_new_down,file='BAL_HIF_high_low_limma.RData')
-write.table(myresults_new,'BAL_HIF_high_low_limma.txt',sep = '\t')
-
-write.table(myresults_new_up,'HIF_high_low_limma_UpDEG.txt',sep = '\t')
-write.table(myresults_new_down,'HIF_high_low_limma_DownDEG.txt',sep = '\t')
-
-myresults_new[c('NDRG1','ENO1','VEGFA','MRPS17','TPI1','CDKN3',
-                'MIF','LDHA','ALDOA','TUBB6','PGAM1','SLC2A1','P4HA1','ACOT7','ADM'),]
-
-
+### merge list HIF score and Oxidative score
+df<-rbind(gsva_Oxidative,gsva_Hypoxia)
+df<-t(df)
+df<-as.data.frame(df)
+colnames(df)<-c('Oxidative_Stree_Score','HIF_Score')
+## plot
+pdf('Oxidative_Stree_HIF.pdf',width = 10,height = 10)
+par(mar=c(5,8,100,5))
+ggscatter(df, x = "Oxidative_Stree_Score", y = "HIF_Score", 
+          size = 5,
+          xlab = expression(paste('HIF',' Score')),
+          ylab = expression(paste('Oxidative Stress',' Score')),
+          add = "reg.line",  # Add regressin line
+          #cor.coef = TRUE,
+          add.params = list(color = "blue", fill = "lightgray"), # Customize reg. line
+          
+          #conf.int = TRUE, # Add confidence interval
+          cor.coeff.args = list(method = "pearson", label.x =-0.07 , label.sep = "\n",
+                                label.y = 1.1),cor.coef.size = 10)+
+  annotate("text", x =-0.025, y=1.0, label = substitute(paste(italic("R"), " = 0.48")),size=10)+
+  annotate("text", x = -0.025, y=0.9, label = substitute(paste(italic("P"), " = 3.5 x ",10^-8)),size=10)+
+  theme(axis.title=element_text(size=40,face="bold"),axis.text=element_text(size=35,face="bold"),axis.title.x=element_text(face = 'bold'),
+        axis.title.y=element_text(face = 'bold'))
+dev.off()
