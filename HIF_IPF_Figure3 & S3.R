@@ -98,3 +98,5 @@ ggscatter(df, x = "Oxidative_Stree_Score", y = "HIF_Score",
   theme(axis.title=element_text(size=40,face="bold"),axis.text=element_text(size=35,face="bold"),axis.title.x=element_text(face = 'bold'),
         axis.title.y=element_text(face = 'bold'))
 dev.off()
+
+# Figure 3E is done in CiberSortX web
