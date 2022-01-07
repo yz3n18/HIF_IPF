@@ -1,6 +1,3 @@
-Hypxoia_score<-HIF1A
-HIF_score<-HIF1A
-
 
 ## Figure 2A   
 
@@ -117,3 +114,10 @@ if(T){
   }
 }
 phe_function(HIF_list,2)
+
+# Figure 2E is done in CiberSortX web
+
+## Figure 2-figure supplement
+GSVA_survival(HIF_list,'FREIBURG',2)
+GSVA_survival(HIF_list,'SIENA',2)
+GSVA_survival(HIF_list,'LEUVEN',2)
