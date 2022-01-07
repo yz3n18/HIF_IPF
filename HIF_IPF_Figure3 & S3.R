@@ -64,6 +64,8 @@ heatmap.2(a3, trace="none", density='none',scale="row", margins = c(10,12),cexRo
           ColSideColors  = col_labels) 
 dev.off()}#### HIF-siganture heatmap####
 
+# Figure 3C is done in the web tool
+
 ## Figure 3D
 Oxidative_list<-list(c('ABCC1', 'CDKN2D', 'FES', 'GCLC', 'GCLM', 'GLRX2', 'HHEX', 'IPCEF1', 
                        'JUNB', 'LAMTOR5', 'LSP1', 'MBP', 'MGST1', 'MPO', 'NDUFA6', 'PFKP', 'PRDX1', 'PRDX2','PRDX4', 
