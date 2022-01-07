@@ -1,6 +1,6 @@
 Hypxoia_score<-HIF1A
 HIF_score<-HIF1A
-GAL_score<-HIF1A
+
 
 ## Figure 2A   
 
