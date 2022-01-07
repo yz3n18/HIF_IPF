@@ -72,4 +72,6 @@ summary(Gcox)  #output provides HR CIs
 ggforest(Gcox,data = phe_final_HIF1a,cpositions = c(0.02,0.22,0.4),main = 'Hazard ratio',
          fontsize =1.8,refLabel = 'reference',noDigits = 2)
 
-
+## Figure 4-figure supplement
+GSVA_survival(HIF_list,'CHICAGO',2)
+GSVA_survival(HIF_list,'PITTSBURGH',2)
