@@ -1,5 +1,5 @@
-# Cibersortx Genomics Paper ####
 library(limma)
+library(GEOquery)
 setwd('/Users/yihuawang/Downloads/GSE28042_RAW/')
 gset <- getGEO("GSE28042", GSEMatrix =TRUE, getGPL=FALSE)
 if (length(gset) > 1) idx <- grep("GPL6480", attr(gset, "names")) else idx <- 1
@@ -10,100 +10,18 @@ GSE28042<-getGEO('GSE28042',destdir = './')
 GSE28042<-GSE28042[[1]]
 GSE28042<-as.data.frame(exprs(GSE28042))
 GSE28042$ID<-rownames(GSE28042)
-
-
-files <- dir(pattern="*\\.txt$")
-x <- read.maimages(files,
-                   source="agilent", green.only=TRUE, other.columns="gIsWellAboveBG")
-
-
-y <- limma::backgroundCorrect(x, method="normexp") # 必须要定义成limma
-y <- limma::normalizeBetweenArrays(y, method="quantile")
-
-y_E<-y$E
-y_E<-as.data.frame(y_E)
-y_E$ID<-y$genes$ProbeName
-length(y$genes$ProbeName)
-length(y_E$ID)
-
-bb<-"/Users/yihuawang/Downloads/GSE28042_family.soft"
+bb<-"/Users/yihuawang/Downloads/GSE28042_RAW/GPL6480.soft"
 bb_nn <- grep("^[^#!^]", readLines(bb))[1] - 1
 pfinfo_bb <- read.table(bb, sep = "\t", quote = "", header = TRUE, skip = bb_nn, fill = TRUE)
 colnames(pfinfo_bb)
 pfinfo_bb<-pfinfo_bb[,c(1,7)]
-
-y_E<-merge(y_E,pfinfo_bb,by='ID')
-dim(y_E)
-length(unique(y_E$ID))
-length(unique(pfinfo_bb$ID))
-
-colnames(y_E)
-y_E<-aggregate(x=y_E[,1:38],by=list(y_E$ProbeName),FUN=median)
-colnames(y_E)[1]<-'ProbeName'
-median(y_E[,6])
-y_E1<-y_E
-y_E<-merge(y_E,pfinfo_bb,by='ProbeName')
-y_E<-aggregate(x=y_E[,2:650],by=list(y_E$GeneSymbol),FUN=max)
-rownames(y_E)<-y_E$Group.1
-y_E<-y_E[-1,-1]
-median(x_genes[,4])
-colnames(y_E)<-phe$Mycn_sample
-y_E<-y_E[ , order(colnames(y_E))]
-write.csv(y_E,'GSE45547_matrix.csv')
-
-
-
-
-
-
-
-
-
-
-
-
-
-celFiles <- list.celfiles() ##
-GSE45547 <- read.celfiles(celFiles)
-#GSE45547 <- read.celfiles(celFiles,pkgname="pd.huex.1.0.st.v2"),适用于 pd.huex.1.0.st.v1
-GSE45547<-  oligo::rma(GSE45547)
-GSE45547<-exprs(GSE45547)
-boxplot(GSE45547)
-
-
-bb<-"/Users/lefan/Rcode/IPF-singlecell/GSE28221_RAW/GSE27957_family.soft"
-bb<-"/Users/lefan/Covid-19/GSE1739/GPL201.soft"
-bb<-"/Users/lefan/Rcode/Neuroblastoma/Hu/GPL5175.soft"
-bb_nn <- grep("^[^#!^]", readLines(bb))[1] - 1
-pfinfo_bb <- read.table(bb, sep = "\t", quote = "", header = TRUE, skip = bb_nn, fill = TRUE)
-colnames(pfinfo_bb)
-pfinfo_bb<-pfinfo_bb[,c(1,10)]
-dim(GSE16476_data)
-
-class(pfinfo_bb$gene_assignment[1])
-FUN1<-function(x){
-  x<-strsplit(x,' // ')[[1]][2]
-}
-pfinfo_bb$gene_assignment<-sapply(as.character(pfinfo_bb$gene_assignment),FUN1)
-
-colnames(pfinfo_bb_new)[1]<-"ID"
-pfinfo_bb<-read.csv('GPL570_probe.csv',header = T,sep = ',')
-
-GSE16476_data$ID<-GSE16476_gene$SYMBOL ## 添加注释
-colnames(pfinfo_bb)[1]<-'ID'
-GSE45547<-as.data.frame(GSE45547)
-GSE45547$ID<-rownames(GSE45547) ## 添加注释
-
-
-GSE16476_data<-merge(GSE45547,pfinfo_bb,by='ID') ## 与genesymbol整合
-
-colnames(GSE16476_data)[c(1,(length(colnames(GSE16476_data))-1),length(colnames(GSE16476_data)))] ## 检查行名
-GSE16476_data<-aggregate(x=GSE16476_data[,2:(length(colnames(GSE16476_data))-1)],by=list(GSE16476_data$gene_assignment),FUN=max) ## 得到median值
-
-rownames(GSE16476_data)<-GSE16476_data$Group.1 ##
-
-
-
+GSE28042<-merge(GSE28042,pfinfo_bb,by='ID')
+GSE28042<-aggregate(x=GSE28042[,2:95],by=list(GSE28042$GENE_SYMBOL),FUN=median)
+rownames(GSE28042)<-GSE28042$Group.1
+GSE28042<-GSE28042[-1,-1]
+boxplot(GSE28042)
+#GSE28042<-GSE28042[,76:94]
+write.table(GSE28042,'GSE28042.txt',sep = '\t')
 GSE28043
 
 
